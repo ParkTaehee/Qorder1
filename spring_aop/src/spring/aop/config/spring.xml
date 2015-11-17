@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd">
+
+	<bean name="businessService" class="spring.aop.core.BusinessServiceImpl"/>
+	
+	<!-- 공통로직을 구현 Class을 bean으로 등록 -->
+	
+	<bean name="LoggerAspect" class="spring.aop.cross_cutting.LoggerAspect"/>
+
+	<!-- 
+	
+		aop 설정 - aop namespace의 태그들 이용.
+		root : map:config
+		
+		aop:aspect - 공통로직 처리 bean 설정. - aspect( AdvicePointcut )를 등록
+	
+	 -->
+	
+	<aop:config>
+	
+		<aop:aspect ref="LoggerAspect">		<!-- ref 공통처리 bean의 식별 값 -->
+			
+			<!-- pointcut 공통로직을 적용시킬 핵심로직을 가진 메소드들 -->
+			
+			<aop:pointcut id ="before-pointcut" expression="within(spring.aop..*Service*)"/>
+			
+			<aop:pointcut id="pointcut1" expression="execution(* spring.aop..*ServiceImpl.business*(..))"/>
+			
+			<aop:before method="startLogicLogger" pointcut-ref="pointcut1"/>
+					
+			<!--
+			
+				 Service가 들어간 타입의 모든 메소드 호출 시( pointcut )
+				그 메소드가 실행 되기 전에 ( before태그-시점 )
+				loggerAspect 빈의 startLogicLogger 메소드를 실행시켜라. (method)
+			
+			 -->		
+					
+		</aop:aspect>		
+	
+	</aop:config>
+	
+</beans>
